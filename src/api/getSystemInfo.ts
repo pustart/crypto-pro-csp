@@ -1,6 +1,5 @@
 import { _afterPluginsLoaded } from '../helpers/_afterPluginsLoaded';
 import { _extractMeaningfulErrorMessage } from '../helpers/_extractMeaningfulErrorMessage';
-import { __cadesAsyncToken__, __createCadesPluginObject__, _generateCadesFn } from '../helpers/_generateCadesFn';
 
 export interface SystemInfo {
   cadesVersion: string;
@@ -14,35 +13,34 @@ export interface SystemInfo {
  */
 export const getSystemInfo = _afterPluginsLoaded(
   (): SystemInfo => {
+    const { cadesplugin } = window;
+
     const sysInfo = {
       cadesVersion: null,
       cspVersion: null,
     };
 
-    return eval(
-      _generateCadesFn(function getSystemInfo(): SystemInfo {
-        let cadesAbout;
+    return cadesplugin.async_spawn(function* getSystemInfo() {
+      let cadesAbout;
+      try {
+        cadesAbout = yield cadesplugin.CreateObjectAsync('CAdESCOM.About');
 
-        try {
-          cadesAbout = __cadesAsyncToken__ + __createCadesPluginObject__('CAdESCOM.About');
+        sysInfo.cadesVersion = yield cadesAbout.PluginVersion;
+        sysInfo.cspVersion = yield cadesAbout.CSPVersion();
 
-          sysInfo.cadesVersion = __cadesAsyncToken__ + cadesAbout.PluginVersion;
-          sysInfo.cspVersion = __cadesAsyncToken__ + cadesAbout.CSPVersion();
-
-          if (!sysInfo.cadesVersion) {
-            sysInfo.cadesVersion = __cadesAsyncToken__ + cadesAbout.Version;
-          }
-
-          sysInfo.cadesVersion = __cadesAsyncToken__ + sysInfo.cadesVersion.toString();
-          sysInfo.cspVersion = __cadesAsyncToken__ + sysInfo.cspVersion.toString();
-        } catch (error) {
-          console.error(error);
-
-          throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при получении информации о системе');
+        if (!sysInfo.cadesVersion) {
+          sysInfo.cadesVersion = yield cadesAbout.Version;
         }
 
-        return sysInfo;
-      }),
-    );
+        sysInfo.cadesVersion = yield sysInfo.cadesVersion.toString();
+        sysInfo.cspVersion = yield sysInfo.cspVersion.toString();
+      } catch (error) {
+        console.error(error);
+
+        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при получении информации о системе');
+      }
+
+      return sysInfo;
+    });
   },
 );

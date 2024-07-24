@@ -1,6 +1,5 @@
 import { _afterPluginsLoaded } from '../helpers/_afterPluginsLoaded';
 import { _extractMeaningfulErrorMessage } from '../helpers/_extractMeaningfulErrorMessage';
-import { __cadesAsyncToken__, __createCadesPluginObject__, _generateCadesFn } from '../helpers/_generateCadesFn';
 import { _getCadesCert } from '../helpers/_getCadesCert';
 
 /** Дополнительные настройки */
@@ -33,51 +32,44 @@ export const createXMLSignature = _afterPluginsLoaded(
     const { cadesplugin } = window;
     const cadesCertificate = await _getCadesCert(thumbprint);
 
-    return eval(
-      _generateCadesFn(function createXMLSignature(): string {
-        let cadesSigner;
-        let cadesSignedXML;
+    return cadesplugin.async_spawn(function* createXMLSignature() {
+      let cadesSigner;
+      let cadesSignedXML;
+      try {
+        cadesSigner = yield cadesplugin.CreateObjectAsync('CAdESCOM.CPSigner');
+        cadesSignedXML = yield cadesplugin.CreateObjectAsync('CAdESCOM.SignedXML');
+      } catch (error) {
+        console.error(error);
 
-        try {
-          cadesSigner = __cadesAsyncToken__ + __createCadesPluginObject__('CAdESCOM.CPSigner');
-          cadesSignedXML = __cadesAsyncToken__ + __createCadesPluginObject__('CAdESCOM.SignedXML');
-        } catch (error) {
-          console.error(error);
+        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при инициализации подписи');
+      }
 
-          throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при инициализации подписи');
-        }
+      try {
+        const signatureMethod = options?.signatureMethod ?? cadesplugin.XmlDsigGost3410Url2012256;
+        const digestMethod = options?.digestMethod ?? cadesplugin.XmlDsigGost3411Url2012256;
 
-        try {
-          const signatureMethod = options?.signatureMethod ?? cadesplugin.XmlDsigGost3410Url2012256;
-          const digestMethod = options?.digestMethod ?? cadesplugin.XmlDsigGost3411Url2012256;
+        yield cadesSigner.propset_Certificate(cadesCertificate);
+        yield cadesSigner.propset_CheckCertificate(true);
+        yield cadesSignedXML.propset_Content(unencryptedMessage);
+        yield cadesSignedXML.propset_SignatureType(cadesplugin.CADESCOM_XML_SIGNATURE_TYPE_ENVELOPED);
+        yield cadesSignedXML.propset_SignatureMethod(signatureMethod);
+        yield cadesSignedXML.propset_DigestMethod(digestMethod);
+      } catch (error) {
+        console.error(error);
 
-          void (__cadesAsyncToken__ + cadesSigner.propset_Certificate(cadesCertificate));
-          void (__cadesAsyncToken__ + cadesSigner.propset_CheckCertificate(true));
-          void (__cadesAsyncToken__ + cadesSignedXML.propset_Content(unencryptedMessage));
-          void (
-            __cadesAsyncToken__ +
-            cadesSignedXML.propset_SignatureType(cadesplugin.CADESCOM_XML_SIGNATURE_TYPE_ENVELOPED)
-          );
-          void (__cadesAsyncToken__ + cadesSignedXML.propset_SignatureMethod(signatureMethod));
-          void (__cadesAsyncToken__ + cadesSignedXML.propset_DigestMethod(digestMethod));
-        } catch (error) {
-          console.error(error);
+        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при указании данных для подписи');
+      }
 
-          throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при указании данных для подписи');
-        }
+      let signature: string;
+      try {
+        signature = yield cadesSignedXML.Sign(cadesSigner);
+      } catch (error) {
+        console.error(error);
 
-        let signature: string;
+        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при подписании данных');
+      }
 
-        try {
-          signature = __cadesAsyncToken__ + cadesSignedXML.Sign(cadesSigner);
-        } catch (error) {
-          console.error(error);
-
-          throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при подписании данных');
-        }
-
-        return signature;
-      }),
-    );
+      return signature;
+    });
   },
 );
