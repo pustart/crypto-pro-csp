@@ -13,7 +13,7 @@ export const _afterPluginsLoaded = <T extends (...args: any[]) => any>(
   return async function (...args: Parameters<T>): Promise<Unpromisify<ReturnType<T>>> {
     if (!isPluginLoaded) {
       try {
-        require('cadesplugin_api.js');
+        require('cadesplugin_api.js-actual');
       } catch (error) {
         console.error(error);
 
