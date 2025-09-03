@@ -58,7 +58,7 @@
     "@types/node": "13.9.5",
     "@typescript-eslint/eslint-plugin": "2.25.0",
     "@typescript-eslint/parser": "2.25.0",
-    "cadesplugin_api.js": "2.3.5",
+    "cadesplugin_api.js-actual": "^2.4.1",
     "coveralls": "3.0.11",
     "cross-env": "7.0.2",
     "eslint": "6.8.0",
