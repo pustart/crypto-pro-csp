@@ -5,7 +5,6 @@ import Certificate from './components/Certificate';
 import SignatureType from './components/SignatureType';
 import Hash from './components/Hash';
 import Signature from './components/Signature';
-import CustomSystemInfo from './components/CustomSystemInfo';
 import SystemInfo from './components/SystemInfo';
 
 function App() {
@@ -112,7 +111,6 @@ function App() {
 
       <fieldset>
         <legend>Информация о системе</legend>
-        <CustomSystemInfo/>
         <SystemInfo/>
       </fieldset>
     </>
