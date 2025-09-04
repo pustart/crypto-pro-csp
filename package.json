@@ -29,7 +29,6 @@
     "examples-update:angular": "npm --prefix ./examples/angular r crypto-pro-csp && npm --prefix ./examples/angular i crypto-pro-csp",
     "examples-update:react": "npm --prefix ./examples/react r crypto-pro-csp && npm --prefix ./examples/react i crypto-pro-csp",
     "prepack": "npm run build",
-    "postpack": "npm run pack:uncompress && npm run pack:clean",
     "prepublishOnly": "npm run lint && jest && npm run build",
     "postpublish": "npm run examples-update"
   },
