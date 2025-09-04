@@ -2,12 +2,11 @@
   "name": "crypto-pro-csp",
   "version": "3.0.0",
   "description": "Асинхронное API для работы с КриптоПРО ЭЦП Browser Plug-In, с поддержкой строгой политики CSP.",
-  "main": "./lib/crypto-pro.js",
-  "types": "./lib/crypto-pro.d.ts",
+  "main": "./lib/crypto-pro-csp.js",
+  "types": "./lib/crypto-pro-csp.d.ts",
   "files": [
     "lib/**/*",
-    "dist/**/*",
-    "bower.json"
+    "dist/**/*"
   ],
   "scripts": {
     "clean": "rimraf dist lib package coverage",
@@ -26,9 +25,9 @@
     "lint": "eslint --config .eslintrc.js './src/**/*'",
     "lint:fix": "eslint --fix --config .eslintrc.js './src/**/*'",
     "examples-update": "npm run examples-update:script-tag && npm run examples-update:angular && npm run examples-update:react",
-    "examples-update:script-tag": "npm --prefix ./examples/script-tag r crypto-pro && npm --prefix ./examples/script-tag i crypto-pro",
-    "examples-update:angular": "npm --prefix ./examples/angular r crypto-pro && npm --prefix ./examples/angular i crypto-pro",
-    "examples-update:react": "npm --prefix ./examples/react r crypto-pro && npm --prefix ./examples/react i crypto-pro",
+    "examples-update:script-tag": "npm --prefix ./examples/script-tag r crypto-pro-csp && npm --prefix ./examples/script-tag i crypto-pro-csp",
+    "examples-update:angular": "npm --prefix ./examples/angular r crypto-pro-csp && npm --prefix ./examples/angular i crypto-pro-csp",
+    "examples-update:react": "npm --prefix ./examples/react r crypto-pro-csp && npm --prefix ./examples/react i crypto-pro-csp",
     "prepack": "npm run build",
     "postpack": "npm run pack:uncompress && npm run pack:clean",
     "prepublishOnly": "npm run lint && jest && npm run build",
