@@ -12,7 +12,7 @@
   "scripts": {
     "clean": "rimraf dist lib package coverage",
     "start": "cross-env TS_CONFIG=tsconfig-es5.json webpack --watch",
-    "test": "jest --coverage && coveralls < coverage/lcov.info",
+    "test": "jest --coverage",
     "build:uncompressed:es5": "cross-env TS_CONFIG=tsconfig-es5.json webpack",
     "build:compressed:es5": "cross-env TS_CONFIG=tsconfig-es5.json NODE_ENV=production webpack",
     "build:definition-header:es5": "cross-env TS_CONFIG=tsconfig-es5.json node definition-header.js",
