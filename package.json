@@ -1,9 +1,9 @@
 {
-  "name": "crypto-pro-csp",
+  "name": "crypto-pro-csp-compatible",
   "version": "3.0.0",
   "description": "Асинхронное API для работы с КриптоПРО ЭЦП Browser Plug-In, с поддержкой строгой политики CSP.",
-  "main": "./lib/crypto-pro-csp.js",
-  "types": "./lib/crypto-pro-csp.d.ts",
+  "main": "./lib/crypto-pro-csp-compatible.js",
+  "types": "./lib/crypto-pro-csp-compatible.d.ts",
   "files": [
     "lib/**/*",
     "dist/**/*"
@@ -25,16 +25,16 @@
     "lint": "eslint --config .eslintrc.js './src/**/*'",
     "lint:fix": "eslint --fix --config .eslintrc.js './src/**/*'",
     "examples-update": "npm run examples-update:script-tag && npm run examples-update:angular && npm run examples-update:react",
-    "examples-update:script-tag": "npm --prefix ./examples/script-tag r crypto-pro-csp && npm --prefix ./examples/script-tag i crypto-pro-csp",
-    "examples-update:angular": "npm --prefix ./examples/angular r crypto-pro-csp && npm --prefix ./examples/angular i crypto-pro-csp",
-    "examples-update:react": "npm --prefix ./examples/react r crypto-pro-csp && npm --prefix ./examples/react i crypto-pro-csp",
+    "examples-update:script-tag": "npm --prefix ./examples/script-tag r crypto-pro-csp-compatible && npm --prefix ./examples/script-tag i crypto-pro-csp-compatible",
+    "examples-update:angular": "npm --prefix ./examples/angular r crypto-pro-csp-compatible && npm --prefix ./examples/angular i crypto-pro-csp-compatible",
+    "examples-update:react": "npm --prefix ./examples/react r crypto-pro-csp-compatible && npm --prefix ./examples/react i crypto-pro-csp-compatible",
     "prepack": "npm run build",
     "prepublishOnly": "npm run lint && jest && npm run build",
     "postpublish": "npm run examples-update"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pustart/crypto-pro-csp"
+    "url": "https://github.com/pustart/crypto-pro-csp-compatible"
   },
   "author": {
     "name": "Artyom Pustovalov",
@@ -54,6 +54,7 @@
     "cryptopro",
     "crypto-pro",
     "crypto-pro-js",
+    "crypto-pro-csp-compatible",
     "cades",
     "КриптоПро",
     "Крипто ПРО"

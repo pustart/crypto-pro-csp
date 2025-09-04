@@ -5,7 +5,7 @@
     "outDir": "lib"
   },
   "include": [
-    "./src/crypto-pro-csp.ts",
+    "./src/crypto-pro-csp-compatible.ts",
     "./types"
   ]
 }
