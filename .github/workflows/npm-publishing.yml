@@ -1,7 +1,9 @@
-name: CI - Tests & Coverage
+name: CD - Publish release to NPM
+
 on:
-  pull_request:
-    branches: [ "master", "develop" ]
+  release:
+    types: [published]
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -56,3 +58,29 @@ jobs:
 
       - name: Building app
         run: npm run build
+
+  npm-publishing:
+    needs: [build]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '12'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
