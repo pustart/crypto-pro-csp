@@ -12,6 +12,7 @@
   "scripts": {
     "clean": "rimraf dist lib package coverage",
     "start": "cross-env TS_CONFIG=tsconfig-es5.json webpack --watch",
+    "test": "jest --coverage && coveralls < coverage/lcov.info",
     "build:uncompressed:es5": "cross-env TS_CONFIG=tsconfig-es5.json webpack",
     "build:compressed:es5": "cross-env TS_CONFIG=tsconfig-es5.json NODE_ENV=production webpack",
     "build:definition-header:es5": "cross-env TS_CONFIG=tsconfig-es5.json node definition-header.js",
@@ -22,7 +23,6 @@
     "build": "npm run clean && npm run build:es5 && npm run build:esm",
     "pack:clean": "cross-env-shell rimraf $npm_package_name-$npm_package_version.tgz",
     "pack:uncompress": "cross-env-shell tar xopf $npm_package_name-$npm_package_version.tgz",
-    "test": "jest --coverage && coveralls < coverage/lcov.info",
     "lint": "eslint --config .eslintrc.js './src/**/*'",
     "lint:fix": "eslint --fix --config .eslintrc.js './src/**/*'",
     "examples-update": "npm run examples-update:script-tag && npm run examples-update:angular && npm run examples-update:react",

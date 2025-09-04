@@ -14,7 +14,8 @@
     ]
   },
   "include": [
-    "./src/crypto-pro.ts"
+    "./src",
+    "./types",
   ],
   "exclude": [
     "node_modules"
