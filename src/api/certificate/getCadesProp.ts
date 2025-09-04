@@ -1,6 +1,5 @@
 import { _afterPluginsLoaded } from '../../helpers/_afterPluginsLoaded';
 import { _extractMeaningfulErrorMessage } from '../../helpers/_extractMeaningfulErrorMessage';
-import { __cadesAsyncToken__, _generateCadesFn } from '../../helpers/_generateCadesFn';
 import { Certificate } from './certificate';
 
 /**
@@ -10,21 +9,19 @@ import { Certificate } from './certificate';
  * @returns значение запрошенного свойства
  */
 export const getCadesProp = _afterPluginsLoaded(function (propName: string): any {
+  const { cadesplugin } = window;
   const cadesCertificate = (this as Certificate)._cadesCertificate;
 
-  return eval(
-    _generateCadesFn(function getCadesProp() {
-      let propertyValue;
+  return cadesplugin.async_spawn(function* getCadesProp() {
+    let propertyValue;
+    try {
+      propertyValue = yield cadesCertificate[propName];
+    } catch (error) {
+      console.error(error);
 
-      try {
-        propertyValue = __cadesAsyncToken__ + cadesCertificate[propName];
-      } catch (error) {
-        console.error(error);
+      throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при обращении к свойству сертификата');
+    }
 
-        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при обращении к свойству сертификата');
-      }
-
-      return propertyValue;
-    }),
-  );
+    return propertyValue;
+  });
 });

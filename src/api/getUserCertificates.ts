@@ -3,7 +3,6 @@ import { CAPICOM_PROPID_KEY_PROV_INFO } from '../constants';
 import { _afterPluginsLoaded } from '../helpers/_afterPluginsLoaded';
 import { _extractCommonName } from '../helpers/_extractCommonName';
 import { _extractMeaningfulErrorMessage } from '../helpers/_extractMeaningfulErrorMessage';
-import { __cadesAsyncToken__, __createCadesPluginObject__, _generateCadesFn } from '../helpers/_generateCadesFn';
 
 let certificatesCache: Certificate[];
 
@@ -20,98 +19,89 @@ export const getUserCertificates = _afterPluginsLoaded((resetCache: boolean = fa
     return certificatesCache;
   }
 
-  return eval(
-    _generateCadesFn(function getUserCertificates(): Certificate[] {
-      let cadesStore;
+  return cadesplugin.async_spawn(function* getUserCertificates() {
+    let cadesStore;
 
-      try {
-        cadesStore = __cadesAsyncToken__ + __createCadesPluginObject__('CAdESCOM.Store');
-      } catch (error) {
-        console.error(error);
+    try {
+      cadesStore = yield cadesplugin.CreateObjectAsync('CAdESCOM.Store');
+    } catch (error) {
+      console.error(error);
 
-        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при попытке доступа к хранилищу');
-      }
+      throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при попытке доступа к хранилищу');
+    }
 
-      try {
-        void (
-          __cadesAsyncToken__ +
-          cadesStore.Open(
-            cadesplugin.CAPICOM_CURRENT_USER_STORE,
-            cadesplugin.CAPICOM_MY_STORE,
-            cadesplugin.CAPICOM_STORE_OPEN_MAXIMUM_ALLOWED,
-          )
+    try {
+      yield cadesStore.Open(
+        cadesplugin.CAPICOM_CURRENT_USER_STORE,
+        cadesplugin.CAPICOM_MY_STORE,
+        cadesplugin.CAPICOM_STORE_OPEN_MAXIMUM_ALLOWED,
+      );
+    } catch (error) {
+      console.error(error);
+
+      throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при открытии хранилища');
+    }
+
+    let cadesCertificates;
+    let cadesCertificatesCount;
+
+    try {
+      cadesCertificates = yield cadesStore.Certificates;
+
+      if (cadesCertificates) {
+        cadesCertificates = yield cadesCertificates.Find(cadesplugin.CAPICOM_CERTIFICATE_FIND_TIME_VALID);
+
+        /**
+         * Не рассматриваются сертификаты, в которых отсутствует закрытый ключ
+         * или не действительны на данный момент
+         */
+        cadesCertificates = yield cadesCertificates.Find(
+          cadesplugin.CAPICOM_CERTIFICATE_FIND_EXTENDED_PROPERTY,
+          CAPICOM_PROPID_KEY_PROV_INFO,
         );
-      } catch (error) {
-        console.error(error);
 
-        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при открытии хранилища');
+        cadesCertificatesCount = yield cadesCertificates.Count;
       }
+    } catch (error) {
+      console.error(error);
 
-      let cadesCertificates;
-      let cadesCertificatesCount;
+      throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка получения списка сертификатов');
+    }
 
-      try {
-        cadesCertificates = __cadesAsyncToken__ + cadesStore.Certificates;
+    if (!cadesCertificatesCount) {
+      throw new Error('Нет доступных сертификатов');
+    }
 
-        if (cadesCertificates) {
-          cadesCertificates =
-            __cadesAsyncToken__ + cadesCertificates.Find(cadesplugin.CAPICOM_CERTIFICATE_FIND_TIME_VALID);
+    const certificateList: Certificate[] = [];
 
-          /**
-           * Не рассматриваются сертификаты, в которых отсутствует закрытый ключ
-           * или не действительны на данный момент
-           */
-          cadesCertificates =
-            __cadesAsyncToken__ +
-            cadesCertificates.Find(
-              cadesplugin.CAPICOM_CERTIFICATE_FIND_EXTENDED_PROPERTY,
-              CAPICOM_PROPID_KEY_PROV_INFO,
-            );
+    try {
+      while (cadesCertificatesCount) {
+        const cadesCertificate: CadesCertificate = yield cadesCertificates.Item(cadesCertificatesCount);
 
-          cadesCertificatesCount = __cadesAsyncToken__ + cadesCertificates.Count;
-        }
-      } catch (error) {
-        console.error(error);
+        certificateList.push(
+          new Certificate(
+            cadesCertificate,
+            _extractCommonName(yield cadesCertificate.SubjectName),
+            yield cadesCertificate.IssuerName,
+            yield cadesCertificate.SubjectName,
+            yield cadesCertificate.Thumbprint,
+            yield cadesCertificate.ValidFromDate,
+            yield cadesCertificate.ValidToDate,
+          ),
+        );
 
-        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка получения списка сертификатов');
+        cadesCertificatesCount--;
       }
+    } catch (error) {
+      console.error(error);
 
-      if (!cadesCertificatesCount) {
-        throw new Error('Нет доступных сертификатов');
-      }
+      throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка обработки сертификатов');
+    }
 
-      const certificateList: Certificate[] = [];
+    cadesStore.Close();
 
-      try {
-        while (cadesCertificatesCount) {
-          const cadesCertificate: CadesCertificate =
-            __cadesAsyncToken__ + cadesCertificates.Item(cadesCertificatesCount);
+    certificatesCache = certificateList;
 
-          certificateList.push(
-            new Certificate(
-              cadesCertificate,
-              _extractCommonName(__cadesAsyncToken__ + cadesCertificate.SubjectName),
-              __cadesAsyncToken__ + cadesCertificate.IssuerName,
-              __cadesAsyncToken__ + cadesCertificate.SubjectName,
-              __cadesAsyncToken__ + cadesCertificate.Thumbprint,
-              __cadesAsyncToken__ + cadesCertificate.ValidFromDate,
-              __cadesAsyncToken__ + cadesCertificate.ValidToDate,
-            ),
-          );
-
-          cadesCertificatesCount--;
-        }
-      } catch (error) {
-        console.error(error);
-
-        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка обработки сертификатов');
-      }
-
-      cadesStore.Close();
-
-      certificatesCache = certificateList;
-
-      return certificatesCache;
-    }),
-  );
+    return certificatesCache;
+  });
 });
