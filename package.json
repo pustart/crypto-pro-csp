@@ -1,17 +1,17 @@
 {
-  "name": "crypto-pro",
-  "version": "2.5.2",
-  "description": "API для взаимодействия с КриптоПро",
-  "main": "./lib/crypto-pro.js",
-  "types": "./lib/crypto-pro.d.ts",
+  "name": "crypto-pro-csp",
+  "version": "3.0.0",
+  "description": "Асинхронное API для работы с КриптоПРО ЭЦП Browser Plug-In, с поддержкой строгой политики CSP.",
+  "main": "./lib/crypto-pro-csp.js",
+  "types": "./lib/crypto-pro-csp.d.ts",
   "files": [
     "lib/**/*",
-    "dist/**/*",
-    "bower.json"
+    "dist/**/*"
   ],
   "scripts": {
     "clean": "rimraf dist lib package coverage",
     "start": "cross-env TS_CONFIG=tsconfig-es5.json webpack --watch",
+    "test": "jest --coverage",
     "build:uncompressed:es5": "cross-env TS_CONFIG=tsconfig-es5.json webpack",
     "build:compressed:es5": "cross-env TS_CONFIG=tsconfig-es5.json NODE_ENV=production webpack",
     "build:definition-header:es5": "cross-env TS_CONFIG=tsconfig-es5.json node definition-header.js",
@@ -22,13 +22,12 @@
     "build": "npm run clean && npm run build:es5 && npm run build:esm",
     "pack:clean": "cross-env-shell rimraf $npm_package_name-$npm_package_version.tgz",
     "pack:uncompress": "cross-env-shell tar xopf $npm_package_name-$npm_package_version.tgz",
-    "test": "jest --coverage && coveralls < coverage/lcov.info",
     "lint": "eslint --config .eslintrc.js './src/**/*'",
     "lint:fix": "eslint --fix --config .eslintrc.js './src/**/*'",
     "examples-update": "npm run examples-update:script-tag && npm run examples-update:angular && npm run examples-update:react",
-    "examples-update:script-tag": "npm --prefix ./examples/script-tag r crypto-pro && npm --prefix ./examples/script-tag i crypto-pro",
-    "examples-update:angular": "npm --prefix ./examples/angular r crypto-pro && npm --prefix ./examples/angular i crypto-pro",
-    "examples-update:react": "npm --prefix ./examples/react r crypto-pro && npm --prefix ./examples/react i crypto-pro",
+    "examples-update:script-tag": "npm --prefix ./examples/script-tag r crypto-pro-csp && npm --prefix ./examples/script-tag i crypto-pro-csp",
+    "examples-update:angular": "npm --prefix ./examples/angular r crypto-pro-csp && npm --prefix ./examples/angular i crypto-pro-csp",
+    "examples-update:react": "npm --prefix ./examples/react r crypto-pro-csp && npm --prefix ./examples/react i crypto-pro-csp",
     "prepack": "npm run build",
     "postpack": "npm run pack:uncompress && npm run pack:clean",
     "prepublishOnly": "npm run lint && jest && npm run build",
@@ -36,17 +35,26 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/vgoma/crypto-pro"
+    "url": "https://github.com/pustart/crypto-pro-csp"
   },
   "author": {
-    "name": "Vitalii Goma",
-    "email": "vgoma@yandex.ru",
-    "url": "https://github.com/vgoma"
+    "name": "Artyom Pustovalov",
+    "email": "simplyartempust@gmail.com",
+    "url": "https://github.com/pustart"
   },
+  "contributors": [
+    {
+      "name": "Vitalii Goma",
+      "email": "vgoma@yandex.ru",
+      "url": "https://github.com/vgoma"
+    }
+  ],
   "keywords": [
+    "CSP",
     "crypto",
     "cryptopro",
     "crypto-pro",
+    "crypto-pro-js",
     "cades",
     "КриптоПро",
     "Крипто ПРО"
@@ -58,7 +66,7 @@
     "@types/node": "13.9.5",
     "@typescript-eslint/eslint-plugin": "2.25.0",
     "@typescript-eslint/parser": "2.25.0",
-    "cadesplugin_api.js": "2.3.5",
+    "cadesplugin_api.js-actual": "^2.4.1",
     "coveralls": "3.0.11",
     "cross-env": "7.0.2",
     "eslint": "6.8.0",

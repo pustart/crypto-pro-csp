@@ -1,7 +1,6 @@
 import { CADESCOM_AUTHENTICATED_ATTRIBUTE_SIGNING_TIME } from '../constants';
 import { _afterPluginsLoaded } from '../helpers/_afterPluginsLoaded';
 import { _extractMeaningfulErrorMessage } from '../helpers/_extractMeaningfulErrorMessage';
-import { __cadesAsyncToken__, __createCadesPluginObject__, _generateCadesFn } from '../helpers/_generateCadesFn';
 import { _getCadesCert } from '../helpers/_getCadesCert';
 import { _getDateObj } from '../helpers/_getDateObj';
 
@@ -28,76 +27,60 @@ export const createDetachedSignature = _afterPluginsLoaded(
     const { cadesplugin } = window;
     const cadesCertificate = await _getCadesCert(thumbprint);
 
-    return eval(
-      _generateCadesFn(function createDetachedSignature(): string {
-        let cadesAttrs;
-        let cadesHashedData;
-        let cadesSignedData;
-        let cadesSigner;
+    return cadesplugin.async_spawn(function* createDetachedSignature() {
+      let cadesAttrs;
+      let cadesHashedData;
+      let cadesSignedData;
+      let cadesSigner;
+      try {
+        cadesAttrs = yield cadesplugin.CreateObjectAsync('CADESCOM.CPAttribute');
+        cadesHashedData = yield cadesplugin.CreateObjectAsync('CAdESCOM.HashedData');
+        cadesSignedData = yield cadesplugin.CreateObjectAsync('CAdESCOM.CadesSignedData');
+        cadesSigner = yield cadesplugin.CreateObjectAsync('CAdESCOM.CPSigner');
+      } catch (error) {
+        console.error(error);
+        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при инициализации подписи');
+      }
 
-        try {
-          cadesAttrs = __cadesAsyncToken__ + __createCadesPluginObject__('CADESCOM.CPAttribute');
-          cadesHashedData = __cadesAsyncToken__ + __createCadesPluginObject__('CAdESCOM.HashedData');
-          cadesSignedData = __cadesAsyncToken__ + __createCadesPluginObject__('CAdESCOM.CadesSignedData');
-          cadesSigner = __cadesAsyncToken__ + __createCadesPluginObject__('CAdESCOM.CPSigner');
-        } catch (error) {
-          console.error(error);
+      const currentTime = _getDateObj(new Date());
+      try {
+        yield cadesAttrs.propset_Name(CADESCOM_AUTHENTICATED_ATTRIBUTE_SIGNING_TIME);
+        yield cadesAttrs.propset_Value(currentTime);
+      } catch (error) {
+        console.error(error);
+        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при установке времени подписи');
+      }
 
-          throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при инициализации подписи');
-        }
+      let cadesAuthAttrs;
+      try {
+        yield cadesSigner.propset_Certificate(cadesCertificate);
+        cadesAuthAttrs = yield cadesSigner.AuthenticatedAttributes2;
+        yield cadesAuthAttrs.Add(cadesAttrs);
+        yield cadesSigner.propset_Options(cadesplugin.CAPICOM_CERTIFICATE_INCLUDE_WHOLE_CHAIN);
+      } catch (error) {
+        console.error(error);
+        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при установке сертификата');
+      }
 
-        const currentTime = _getDateObj(new Date());
+      try {
+        yield cadesHashedData.propset_Algorithm(
+          options?.hashedAlgorithm ?? cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_256,
+        );
+        yield cadesHashedData.SetHashValue(messageHash);
+      } catch (error) {
+        console.error(error);
+        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при установке хеша');
+      }
 
-        try {
-          void (__cadesAsyncToken__ + cadesAttrs.propset_Name(CADESCOM_AUTHENTICATED_ATTRIBUTE_SIGNING_TIME));
-          void (__cadesAsyncToken__ + cadesAttrs.propset_Value(currentTime));
-        } catch (error) {
-          console.error(error);
+      let signature;
+      try {
+        signature = yield cadesSignedData.SignHash(cadesHashedData, cadesSigner, cadesplugin.CADESCOM_PKCS7_TYPE);
+      } catch (error) {
+        console.error(error);
+        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при подписании данных');
+      }
 
-          throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при установке времени подписи');
-        }
-
-        let cadesAuthAttrs;
-
-        try {
-          void (__cadesAsyncToken__ + cadesSigner.propset_Certificate(cadesCertificate));
-          cadesAuthAttrs = __cadesAsyncToken__ + cadesSigner.AuthenticatedAttributes2;
-          void (__cadesAsyncToken__ + cadesAuthAttrs.Add(cadesAttrs));
-          void (__cadesAsyncToken__ + cadesSigner.propset_Options(cadesplugin.CAPICOM_CERTIFICATE_INCLUDE_WHOLE_CHAIN));
-        } catch (error) {
-          console.error(error);
-
-          throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при установке сертификата');
-        }
-
-        try {
-          void (
-            __cadesAsyncToken__ +
-            cadesHashedData.propset_Algorithm(
-              options?.hashedAlgorithm ?? cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_256,
-            )
-          );
-          void (__cadesAsyncToken__ + cadesHashedData.SetHashValue(messageHash));
-        } catch (error) {
-          console.error(error);
-
-          throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при установке хеша');
-        }
-
-        let signature: string;
-
-        try {
-          signature =
-            __cadesAsyncToken__ +
-            cadesSignedData.SignHash(cadesHashedData, cadesSigner, cadesplugin.CADESCOM_PKCS7_TYPE);
-        } catch (error) {
-          console.error(error);
-
-          throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при подписании данных');
-        }
-
-        return signature;
-      }),
-    );
+      return signature;
+    });
   },
 );

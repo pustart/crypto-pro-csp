@@ -3,5 +3,9 @@
   "compilerOptions": {
     "target": "es6",
     "outDir": "lib"
-  }
+  },
+  "include": [
+    "./src/crypto-pro-csp.ts",
+    "./types"
+  ]
 }

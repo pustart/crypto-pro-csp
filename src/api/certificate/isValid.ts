@@ -1,6 +1,5 @@
 import { _afterPluginsLoaded } from '../../helpers/_afterPluginsLoaded';
 import { _extractMeaningfulErrorMessage } from '../../helpers/_extractMeaningfulErrorMessage';
-import { __cadesAsyncToken__, _generateCadesFn } from '../../helpers/_generateCadesFn';
 import { Certificate } from './certificate';
 
 /**
@@ -9,22 +8,21 @@ import { Certificate } from './certificate';
  * @returns флаг валидности
  */
 export const isValid = _afterPluginsLoaded(function (): boolean {
+  const { cadesplugin } = window;
   const cadesCertificate = (this as Certificate)._cadesCertificate;
 
-  return eval(
-    _generateCadesFn(function isValid() {
-      let isValid;
+  return cadesplugin.async_spawn(function* isValid() {
+    let isValid;
 
-      try {
-        isValid = __cadesAsyncToken__ + cadesCertificate.IsValid();
-        isValid = __cadesAsyncToken__ + isValid.Result;
-      } catch (error) {
-        console.error(error);
+    try {
+      isValid = yield cadesCertificate.IsValid();
+      isValid = yield isValid.Result;
+    } catch (error) {
+      console.error(error);
 
-        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при проверке сертификата');
-      }
+      throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при проверке сертификата');
+    }
 
-      return Boolean(isValid);
-    }),
-  );
+    return Boolean(isValid);
+  });
 });

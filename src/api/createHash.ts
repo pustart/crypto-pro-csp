@@ -1,7 +1,6 @@
 import { TranscodeEncoding } from 'buffer';
 import { _afterPluginsLoaded } from '../helpers/_afterPluginsLoaded';
 import { _extractMeaningfulErrorMessage } from '../helpers/_extractMeaningfulErrorMessage';
-import { __cadesAsyncToken__, __createCadesPluginObject__, _generateCadesFn } from '../helpers/_generateCadesFn';
 
 /** Дополнительные настройки */
 type Options = {
@@ -32,49 +31,40 @@ export const createHash = _afterPluginsLoaded(
   async (unencryptedMessage: string | ArrayBuffer, options?: Options): Promise<string> => {
     const { cadesplugin } = window;
 
-    return eval(
-      _generateCadesFn(function createHash(): string {
-        const cadesHashedData = __cadesAsyncToken__ + __createCadesPluginObject__('CAdESCOM.HashedData');
-        let messageBase64;
-        let hash;
-
-        try {
-          if (options?.encoding && typeof unencryptedMessage === 'string') {
-            messageBase64 = Buffer.from(unencryptedMessage, options?.encoding).toString('base64');
-          } else {
-            messageBase64 = Buffer.from(unencryptedMessage).toString('base64');
-          }
-        } catch (error) {
-          console.error(error);
-
-          throw new Error('Ошибка при преобразовании сообщения в Base64');
+    return cadesplugin.async_spawn(function* createHash() {
+      const cadesHashedData = yield cadesplugin.CreateObjectAsync('CAdESCOM.HashedData');
+      let messageBase64;
+      let hash;
+      try {
+        if (options?.encoding && typeof unencryptedMessage === 'string') {
+          messageBase64 = Buffer.from(unencryptedMessage, options?.encoding).toString('base64');
+        } else {
+          messageBase64 = Buffer.from(unencryptedMessage).toString('base64');
         }
+      } catch (error) {
+        console.error(error);
+        throw new Error('Ошибка при преобразовании сообщения в Base64');
+      }
 
-        try {
-          void (
-            __cadesAsyncToken__ +
-            cadesHashedData.propset_Algorithm(
-              options?.hashedAlgorithm ?? cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_256,
-            )
-          );
-          void (__cadesAsyncToken__ + cadesHashedData.propset_DataEncoding(cadesplugin.CADESCOM_BASE64_TO_BINARY));
-          void (__cadesAsyncToken__ + cadesHashedData.Hash(messageBase64));
-        } catch (error) {
-          console.error(error);
+      try {
+        yield cadesHashedData.propset_Algorithm(
+          options?.hashedAlgorithm ?? cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_256,
+        );
+        yield cadesHashedData.propset_DataEncoding(cadesplugin.CADESCOM_BASE64_TO_BINARY);
+        yield cadesHashedData.Hash(messageBase64);
+      } catch (error) {
+        console.error(error);
+        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при инициализации хэширования');
+      }
 
-          throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при инициализации хэширования');
-        }
+      try {
+        hash = yield cadesHashedData.Value;
+      } catch (error) {
+        console.error(error);
+        throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при создании хэша');
+      }
 
-        try {
-          hash = __cadesAsyncToken__ + cadesHashedData.Value;
-        } catch (error) {
-          console.error(error);
-
-          throw new Error(_extractMeaningfulErrorMessage(error) || 'Ошибка при создании хэша');
-        }
-
-        return hash;
-      }),
-    );
+      return hash;
+    });
   },
 );
