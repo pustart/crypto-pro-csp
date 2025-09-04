@@ -62,17 +62,17 @@ CAdES — это расширенный стандарт электронной 
 ## Установка
 Для NPM:
 ```bash
-npm install crypto-pro-csp --save-dev
+npm install crypto-pro-csp-compatible --save-dev
 ```
 
 Для Yarn:
 ```bash
-yarn add crypto-pro-csp
+yarn add crypto-pro-csp-compatible
 ```
 
 Подключение пакета как UMD модуля через тэг script:
 ```html
-<script src="crypto-pro-csp/dist/crypto-pro-csp.min.js"></script>
+<script src="crypto-pro-csp-compatible/dist/crypto-pro-csp-compatible.min.js"></script>
 <script>
 window.cryptoPro.getUserCertificates()
   .then(function (certificates) {
@@ -86,7 +86,7 @@ window.cryptoPro.getUserCertificates()
 
 Подключение пакета как ES модуля с Typescript или JavaScript:
 ```typescript
-import { getUserCertificates, Certificate } from 'crypto-pro-csp';
+import { getUserCertificates, Certificate } from 'crypto-pro-csp-compatible';
 
 (async () => {
   let certificates: Certificate[];
@@ -218,7 +218,7 @@ npm i
 npm link ../../
 npm start
 ```
-> После выполнения `npm link ../../` в директории `examples/script-tag/node_modules` папка `crypto-pro-csp` станет ярлыком,
+> После выполнения `npm link ../../` в директории `examples/script-tag/node_modules` папка `crypto-pro-csp-compatible` станет ярлыком,
 > указывающим на папку содержащую локально собранный пакет.
 
 <a name="tests-execution"></a>
@@ -283,9 +283,9 @@ npm unlink
 # Лицензия
 MIT
 
-[npm-url]: https://npmjs.org/package/crypto-pro-csp
-[npm-version-image]: http://img.shields.io/npm/v/crypto-pro-csp.svg?style=flat
-[npm-downloads-image]: http://img.shields.io/npm/dm/crypto-pro-csp.svg?style=flat
-[downloads-url]: https://npmcharts.com/compare/crypto-pro-csp?minimal=true
-[coveralls-image]: https://coveralls.io/repos/github/pustart/crypto-pro-csp/badge.svg?branch=master
-[coveralls-url]: https://coveralls.io/github/pustart/crypto-pro-csp?branch=master
+[npm-url]: https://npmjs.org/package/crypto-pro-csp-compatible
+[npm-version-image]: http://img.shields.io/npm/v/crypto-pro-csp-compatible.svg?style=flat
+[npm-downloads-image]: http://img.shields.io/npm/dm/crypto-pro-csp-compatible.svg?style=flat
+[downloads-url]: https://npmcharts.com/compare/crypto-pro-csp-compatible?minimal=true
+[coveralls-image]: https://coveralls.io/repos/github/pustart/crypto-pro-csp-compatible/badge.svg?branch=master
+[coveralls-url]: https://coveralls.io/github/pustart/crypto-pro-csp-compatible?branch=master

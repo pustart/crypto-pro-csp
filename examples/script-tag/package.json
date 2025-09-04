@@ -1,10 +1,10 @@
 {
   "name": "crypto-pro-example-es5-script-tag",
   "version": "3.0.0",
-  "description": "Пример использования пакета crypto-pro-csp через тэг script",
+  "description": "Пример использования пакета crypto-pro-csp-compatible через тэг script",
   "private": true,
   "scripts": {
-    "link-library": "symlink-dir ./node_modules/crypto-pro-csp/dist ./public/dist",
+    "link-library": "symlink-dir ./node_modules/crypto-pro-csp-compatible/dist ./public/dist",
     "serve": "static --host-address localhost --port 8080 public",
     "start": "npm run link-library && npm run serve"
   },
@@ -13,6 +13,6 @@
     "symlink-dir": "3.1.2"
   },
   "dependencies": {
-    "crypto-pro-csp": "^3.0.0"
+    "crypto-pro-csp-compatible": "^3.0.0"
   }
 }
