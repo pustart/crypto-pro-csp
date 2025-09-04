@@ -72,7 +72,7 @@ yarn add crypto-pro-csp
 
 Подключение пакета как UMD модуля через тэг script:
 ```html
-<script src="crypto-pro-csp/dist/crypto-pro.min.js"></script>
+<script src="crypto-pro-csp/dist/crypto-pro-csp.min.js"></script>
 <script>
 window.cryptoPro.getUserCertificates()
   .then(function (certificates) {
@@ -259,7 +259,8 @@ npm run serve
 Необходимо протестировать работу в заявленных браузерах, сделав это на локально запакованной версии пакета.
 Для этого собираем пакет:
 ```bash
-npm run package
+npm run build
+npm pack
 mv package ..
 ```
 > Важно переместить папку `package` куда-нибудь выше для избежания конфликтов при линковке с текущим `package.json`.
